@@ -17,7 +17,7 @@ export default function contadorReducer(state = initialState, action) {
     case INCREMENT_5:
       return state + action.payload;
     case DECREMENT_5:
-      return state + action.payload;
+      return state - action.payload;
     case RESET:
       return initialState;
 
