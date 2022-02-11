@@ -5,7 +5,7 @@ import {
   REMOVE_ONE_FROM_CART,
 } from '../types';
 
-export const adToCart = id => ({ type: ADD_TO_CART, payload });
+export const addToCart = id => ({ type: ADD_TO_CART, payload: id });
 
 export const delFromCart = (id, all = false) =>
   all
