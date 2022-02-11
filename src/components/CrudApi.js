@@ -1,15 +1,23 @@
-import React, { useState, useEffect, useReducer } from 'react';
-import { TYPES } from '../actions/crudActions';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  createAction,
+  deleteAction,
+  noAction,
+  readAllAction,
+  updateAction,
+} from '../actions/crudActions';
 import { helpHttp } from '../helpers/helpHttp';
-import { crudReducer, crudInitialState } from '../reducers/crudReducer';
 import CrudForm from './CrudForm';
 import CrudTable from './CrudTable';
 import Loader from './Loader';
 import Message from './Message';
 
 const CrupApi = () => {
-  const [state, dispatch] = useReducer(crudReducer, crudInitialState);
-  const { db } = state;
+  const state = useSelector(state => state);
+  const dispatch = useDispatch();
+  const { db } = state.crud;
+
   const [dataToEdit, setDataToEdit] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,16 +33,16 @@ const CrupApi = () => {
       .then(res => {
         // console.log(res);
         if (!res.err) {
-          dispatch({ type: TYPES.READ_ALL_DATA, payload: res });
+          dispatch(readAllAction(res));
           setError(null);
         } else {
-          dispatch({ type: TYPES.NO_DATA });
+          dispatch(noAction());
           setError(res);
         }
 
         setLoading(false);
       });
-  }, [url]);
+  }, [url, dispatch]);
 
   const createData = data => {
     data.id = Date.now();
@@ -47,7 +55,7 @@ const CrupApi = () => {
     api.post(url, options).then(res => {
       // console.log(res);
       if (!res.err) {
-        dispatch({ type: TYPES.CREATE_DATA, payload: res });
+        dispatch(createAction(res));
       } else {
         setError(res);
       }
@@ -65,7 +73,7 @@ const CrupApi = () => {
 
     api.put(endpoint, options).then(res => {
       if (!res.err) {
-        dispatch({ type: TYPES.UPDATE_DATA, payload: data });
+        dispatch(updateAction(res));
       } else {
         setError(res);
       }
@@ -75,7 +83,7 @@ const CrupApi = () => {
   const deleteData = id => {
     let isDelete = window.confirm(
       `Estas seguro de eliminar el registro con el id '${id}'?`
-    ); // Usamos indow antes del confirm para no tener conflictos en React
+    ); // Usamos window antes del confirm para no tener conflictos en React
 
     if (isDelete) {
       let endpoint = `${url}/${id}`;
@@ -85,7 +93,7 @@ const CrupApi = () => {
 
       api.del(endpoint, options).then(res => {
         if (!res.err) {
-          dispatch({ type: TYPES.DELETE_DATA, payload: id });
+          dispatch(deleteAction(id));
         } else {
           setError(res);
         }
